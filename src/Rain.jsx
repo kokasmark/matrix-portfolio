@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 class MatrixRain extends Component {
   constructor(props) {
     super(props);
-    this.canvasRef = React.createRef();  // Reference to the canvas element
+    this.canvasRef = React.createRef(); 
     this.drops = [];
     this.rainEffect = null;
     this.currentTextDrops = []
@@ -15,8 +15,6 @@ class MatrixRain extends Component {
     };
 
     this.texts = [[]]
-    this.getInfo();
-    
   }
   handlePageClick = (page) => {
     this.setState({ page });
@@ -27,21 +25,20 @@ class MatrixRain extends Component {
     this.currentTextDrops = []
   };
 
-  // Render transparent overlay for clickable text elements
   renderOverlayElements() {
     return this.texts[this.state.page].map((item, index) => (
       <div
         key={index}
-        onClick={() => this.handlePageClick(item.page)}  // Set page when clicked
+        onClick={() => this.handlePageClick(item.page)} 
         style={{
           position: 'absolute',
           left: `${item.x}px`,
           top: `${item.y}px`,
-          width: `${item.text.length * 20}px`,  // Adjust width based on the text length and font size
-          height: `24px`,                      // Adjust height based on font size
-          cursor: item.page == undefined ? 'default' : 'pointer',                   // Make the element look clickable
-          backgroundColor: 'rgba(0, 0, 0, 0)', // Transparent background to allow clicking
-          zIndex: 10                           // Ensure overlay is above the canvas
+          width: `${item.text.length * 20}px`, 
+          height: `24px`,                      
+          cursor: item.page == undefined ? 'default' : 'pointer', 
+          backgroundColor: 'rgba(0, 0, 0, 0)', 
+          zIndex: 10                          
         }}
       />
     ));
@@ -50,7 +47,7 @@ class MatrixRain extends Component {
     const canvas = this.canvasRef.current;
     const ctx = canvas.getContext('2d');
 
-    canvas.width = window.innerWidth;
+    canvas.width = window.innerWidth+18;
     canvas.height = window.innerHeight;
 
     const fontSize = 18;
@@ -60,6 +57,7 @@ class MatrixRain extends Component {
     this.characters = 'ABCDEFGHIJKLMNOPQRSTUVWYZ0abcdefghijklmnopqrstuvwyz123456789'.split('');
 
     this.startRain(ctx, canvas.width, canvas.height, fontSize);
+    this.getInfo();
 
     window.addEventListener('resize', this.handleResize);
     window.addEventListener('scroll', this.handleScroll);
@@ -127,13 +125,11 @@ class MatrixRain extends Component {
 
   };
 
-   // Function to check if a raindrop should stop and form a character
    checkIfShouldFormText(i, dropY, fontSize,ctx) {
     for (let { text, x, y,page } of this.texts[this.state.page]) {
       const colX = i * fontSize;
-      // Only stop the rain when it's exactly at or below the Y position of the text
       if (colX >= x && colX < x + text.length * fontSize && Math.abs(Math.floor(dropY * fontSize)-y) < 10) {
-        // Find the index of the character in the text that matches this column
+
         const charIndex = Math.floor((colX - x) / fontSize);
         if (!this.currentTextDrops.includes(i) && page == undefined){
             this.currentTextDrops.push(i);
@@ -145,14 +141,14 @@ class MatrixRain extends Component {
         else{
             ctx.fillStyle = "#78c2d2";
         }
-        return text[charIndex]; // Return the character to be formed at this position
+        return text[charIndex]; 
       }
     }
     return null;
   }
   
   startRain(ctx, width, height, fontSize) {
-    if (this.rainEffect) return; // Avoid multiple intervals
+    if (this.rainEffect) return;
 
     this.rainEffect = setInterval(() => {
       ctx.fillStyle = 'rgba(45,52,65,0.3)';
@@ -161,9 +157,7 @@ class MatrixRain extends Component {
       ctx.font = `${fontSize}px monospace`;
 
       for (let i = 0; i < this.drops.length; i++) {
-        let dropY = this.drops[i]; // Y position of the current drop
-
-        // Check if the drop is at a position where it should form a character from `this.texts`
+        let dropY = this.drops[i]; 
         const textChar = this.checkIfShouldFormText(i, dropY, fontSize,ctx);
         
         if (textChar !== null && !this.state.start) {
@@ -173,8 +167,6 @@ class MatrixRain extends Component {
             ctx.fillStyle = '#759abc';
           const text = this.characters[Math.floor(Math.random() * this.characters.length)];
           ctx.fillText(text, i * fontSize, dropY * fontSize);
-
-          // Reset the drop if it's off-screen or randomly stop it
           if (dropY * fontSize > height && Math.random() > 0.975) {
             this.drops[i] = 0;
             if (this.state.start){
