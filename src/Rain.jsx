@@ -137,13 +137,14 @@ renderOverlayElements() {
       onClick={() => (item.page == undefined ? {} : this.handlePageClick(item.page))}
       onMouseMove={item.page == undefined ? (e)=>this.handleHover(e) : ()=>{}}
       style={{
-        position: 'absolute',
+        position: 'fixed',
         left: `${item.x}px`,
         top: `${item.y-18}px`,
         width: `${item.text.length * 20}px`,
         height: `24px`,
         cursor: 'pointer',
         backgroundColor: 'rgba(0, 0, 0, 0)',
+        padding: 2,
         zIndex: 10
       }}
     />
@@ -193,7 +194,7 @@ renderOverlayElements() {
     if (this.rainEffect) return;
 
     this.rainEffect = setInterval(() => {
-      ctx.fillStyle = this.state.start ? 'transparent':'rgba(0,0,0,0.1)';
+      ctx.fillStyle = this.state.start ? 'transparent':'rgba(0,0,0,0.25)';
       ctx.fillRect(0, 0, width, height);
     
       ctx.font = `${fontSize}px monospace`;
@@ -204,7 +205,7 @@ renderOverlayElements() {
             let dropY = this.drops[i][j];
     
             const textChar = this.checkIfShouldFormText(i,dropY, fontSize, ctx);
-            if (count < this.dropsNeeded[i]) {;
+            if (count < this.dropsNeeded[i]) {
                 if (textChar !== null && !this.state.start && this.framesAfterLastNav > 33) {
                   if (this.drops[i].filter(y => Math.abs(y - dropY) < 0.5).length <= 1) {
                     
@@ -218,7 +219,7 @@ renderOverlayElements() {
                     ctx.fillStyle = '#759abc';
                     let text = this.characters[Math.floor(Math.random() * this.characters.length)];
                     if(this.state.start){
-                      text = 'Welcome '.split('')[i%8]
+                      text = 'Welcome '.split('')[(i+dropY%8)%8]
                     }
                     ctx.fillText(text, i * fontSize, dropY * fontSize);
     
