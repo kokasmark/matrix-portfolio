@@ -57,7 +57,7 @@ class MatrixRain extends Component {
       [{ text: "2019-2024", x: Math.round(window.innerWidth / 2), y: 300, centered: true },
         { text: "Győri SZC Jedlik Ányos Szakközépiskola", x: Math.round(window.innerWidth / 2), y: 350, centered: true },
         { text: "2024-?", x: Math.round(window.innerWidth / 2), y: 400, centered: true },
-        { text: "Széchenyi Istán University", x: Math.round(window.innerWidth / 2), y: 450, centered: true },
+        { text: "Széchenyi István University", x: Math.round(window.innerWidth / 2), y: 450, centered: true },
         { text: "Home", x: 20, y: 40, page: 0 },
         { text: "Skills", x: 120, y: 40, page: 1 },
         { text: "Links", x: 250, y: 40, page: 2 },
@@ -74,7 +74,7 @@ class MatrixRain extends Component {
     this.setState({texts});
     this.drops = Array.from({ length: canvas.width / 18}, () => [1,1,1,1,1,1]);
     this.fillDrops(texts,0,canvas.width / 18);
-    this.startRain(ctx, canvas.width, canvas.height, this.state.fontSize);
+    this.startRain(ctx, canvas.width, canvas.height, 18);
 
     window.addEventListener('resize', this.handleResize);
     window.addEventListener('scroll', this.handleScroll);
@@ -99,6 +99,7 @@ class MatrixRain extends Component {
             this.dropsNeeded[i]++;
         }
     }
+    console.log(this.dropsNeeded)
 }
 
 handleHover(event) {
@@ -164,7 +165,7 @@ renderOverlayElements() {
 
   };
 
-  checkIfShouldFormText(i, j, dropY, fontSize, ctx) {
+  checkIfShouldFormText(i, dropY, fontSize, ctx) {
     const currentTexts = this.state.texts[this.state.page];
 
     try{
@@ -202,17 +203,18 @@ renderOverlayElements() {
         for (let j = 0; j < this.drops[i].length; j++) {
             let dropY = this.drops[i][j];
     
-            const textChar = this.checkIfShouldFormText(i, j, dropY, fontSize, ctx);
+            const textChar = this.checkIfShouldFormText(i,dropY, fontSize, ctx);
             if (count < this.dropsNeeded[i]) {;
-                if (textChar !== null && !this.state.start && this.framesAfterLastNav > 30) {
-                    count++
-                    if (this.drops[i].filter(y => y === dropY).length <= 1) {
-                        ctx.fillText(textChar, i * fontSize, dropY * fontSize);
-                    } else {
-                        this.drops[i][j] += 1; 
-                    }
+                if (textChar !== null && !this.state.start && this.framesAfterLastNav > 33) {
+                  if (this.drops[i].filter(y => Math.abs(y - dropY) < 0.5).length <= 1) {
+                    
+                    ctx.fillText(textChar, i * fontSize, dropY * fontSize);
                 } else {
-                  count++;
+                    // If another drop is occupying nearly the same position, increment this drop's y-position
+                    this.drops[i][j] += 1;
+                }
+                count++;
+                } else if( j <= this.dropsNeeded[i]) {
                     ctx.fillStyle = '#759abc';
                     let text = this.characters[Math.floor(Math.random() * this.characters.length)];
                     if(this.state.start){
