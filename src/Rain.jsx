@@ -137,7 +137,7 @@ renderOverlayElements() {
     <div
       key={index}
       onClick={() => (item.page == undefined ? {} : this.handlePageClick(item.page))}
-      onMouseMove={item.page == undefined ? (e)=>this.handleHover(e) : ()=>{}}
+      onPointerMove={item.page == undefined ? (e)=>this.handleHover(e) : ()=>{}}
       style={{
         position: 'fixed',
         left: `${item.x}px`,
