@@ -16,7 +16,7 @@ class MatrixRain extends Component {
       page: 0,
       texts: [[]],
       columns: 0,
-      fontSize: 18,
+      fontSize: window.innerWidth < 400 ? 11 : 18,
     };
   }
   componentDidMount() {
@@ -25,43 +25,52 @@ class MatrixRain extends Component {
 
     canvas.width = window.innerWidth + 18;
     canvas.height = window.innerHeight;
-
-    this.setState({columns: canvas.width / 18, fontSize: 18})
+    let fontSize = this.state.fontSize
+    this.setState({columns: canvas.width / fontSize})
 
     this.characters = 'ABCDEFGHIJKLMNOPQRSTUVWYZ0abcdefghijklmnopqrstuvwyz123456789@!?;#'.split('');
+    let texts = this.fillTexts();
+    this.drops = Array.from({ length: canvas.width / fontSize}, () =>  Array.from({ length: 5}, () => Math.round(Math.random()*canvas.height/fontSize)));
+    this.fillDrops(texts,0,canvas.width / fontSize);
+    this.startRain(ctx, canvas.width, canvas.height, fontSize);
+
+    window.addEventListener('resize', this.handleResize);
+  }
+  fillTexts(){
+    let navBarOffsets = [20,20+(4*this.state.fontSize)+20*1,20+(10*this.state.fontSize)+20*2,20+(15*this.state.fontSize)+20*3]
     let texts = [
       [{ text: "Kokas Márk", x: Math.round(window.innerWidth / 2), y: 350,centered: true },
       { text: "Full stack developer", x: Math.round(window.innerWidth / 2), y: 380,centered: true },
-      { text: "Home", x: 20, y: 40, page: 0 },
-      { text: "Skills", x: 120, y: 40, page: 1 },
-      { text: "Links", x: 250, y: 40, page: 2 },
-      { text: "Education", x: 350, y: 40, page: 3 }],
+      { text: "Home", x: navBarOffsets[0], y: 40, page: 0 },
+      { text: "Skills", x: navBarOffsets[1], y: 40, page: 1 },
+      { text: "Links", x: navBarOffsets[2], y: 40, page: 2 },
+      { text: "Education", x: navBarOffsets[3], y: 40, page: 3 }],
 
-      [{ text: "React.js", x: Math.round(window.innerWidth / 2), y: 300,centered: true },
-      { text: "Node.js", x: Math.round(window.innerWidth / 2), y: 350,centered: true },
-      { text: "C#", x: Math.round(window.innerWidth / 2), y: 400,centered: true },
-      { text: ".Net Maui", x: Math.round(window.innerWidth / 2), y: 450,centered: true },
-      { text: "Web design", x: Math.round(window.innerWidth / 2), y: 500,centered: true },
-      { text: "Home", x: 20, y: 40, page: 0 },
-      { text: "Skills", x: 120, y: 40, page: 1 },
-      { text: "Links", x: 250, y: 40, page: 2 },
-      { text: "Education", x: 350, y: 40, page: 3 }],
+      [{ text: "React.js", x: Math.round(window.innerWidth / 2)-100, y: 300,centered: true },
+      { text: "Node.js", x: Math.round(window.innerWidth / 2)+100, y: 350,centered: true },
+      { text: "C#", x: Math.round(window.innerWidth / 2)-100, y: 400,centered: true },
+      { text: ".Net Maui", x: Math.round(window.innerWidth / 2)+100, y: 440,centered: true },
+      { text: "Web design", x: Math.round(window.innerWidth / 2)-100, y: 500,centered: true },
+      { text: "Home", x: navBarOffsets[0], y: 40, page: 0 },
+      { text: "Skills", x: navBarOffsets[1], y: 40, page: 1 },
+      { text: "Links", x: navBarOffsets[2], y: 40, page: 2 },
+      { text: "Education", x: navBarOffsets[3], y: 40, page: 3 }],
 
       [{ text: "Github: @kokasmark", x: Math.round(window.innerWidth / 2), y: 300,centered: true },
       { text: "Email: mark.kokas04@gmail.com", x: Math.round(window.innerWidth / 2), y: 350,centered: true },
-      { text: "Home", x: 20, y: 40, page: 0 },
-      { text: "Skills", x: 120, y: 40, page: 1 },
-      { text: "Links", x: 250, y: 40, page: 2 },
-      { text: "Education", x: 350, y: 40, page: 3 }],
+      { text: "Home", x: navBarOffsets[0], y: 40, page: 0 },
+      { text: "Skills", x: navBarOffsets[1], y: 40, page: 1 },
+      { text: "Links", x: navBarOffsets[2], y: 40, page: 2 },
+      { text: "Education", x: navBarOffsets[3], y: 40, page: 3 }],
 
       [{ text: "2019-2024", x: Math.round(window.innerWidth / 2), y: 300, centered: true },
-        { text: "Győri SZC Jedlik Ányos Szakközépiskola", x: Math.round(window.innerWidth / 2), y: 350, centered: true },
+        { text: "SZC Jedlik Ányos Szakközépiskola", x: Math.round(window.innerWidth / 2), y: 350, centered: true },
         { text: "2024-?", x: Math.round(window.innerWidth / 2), y: 400, centered: true },
         { text: "Széchenyi István University", x: Math.round(window.innerWidth / 2), y: 450, centered: true },
-        { text: "Home", x: 20, y: 40, page: 0 },
-        { text: "Skills", x: 120, y: 40, page: 1 },
-        { text: "Links", x: 250, y: 40, page: 2 },
-        { text: "Education", x: 350, y: 40, page: 3 }],
+        { text: "Home", x: navBarOffsets[0], y: 40, page: 0 },
+        { text: "Skills", x: navBarOffsets[1], y: 40, page: 1 },
+        { text: "Links", x: navBarOffsets[2], y: 40, page: 2 },
+        { text: "Education", x: navBarOffsets[3], y: 40, page: 3 }],
     ];
 
     texts.forEach((column) => {
@@ -72,14 +81,8 @@ class MatrixRain extends Component {
       });
   });
     this.setState({texts});
-    this.drops = Array.from({ length: canvas.width / 18}, () => [1,1,1,1,1,1]);
-    this.fillDrops(texts,0,canvas.width / 18);
-    this.startRain(ctx, canvas.width, canvas.height, 18);
-
-    window.addEventListener('resize', this.handleResize);
-    window.addEventListener('scroll', this.handleScroll);
+    return texts;
   }
-  
   fillDrops(texts, page, columns) {
     this.dropsNeeded = Array.from({ length: columns }, () => 0);
     if (!texts[page]) return;
@@ -99,7 +102,6 @@ class MatrixRain extends Component {
             this.dropsNeeded[i]++;
         }
     }
-    console.log(this.dropsNeeded)
 }
 
 handleHover(event) {
@@ -152,7 +154,6 @@ renderOverlayElements() {
 }
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleResize);
-    window.removeEventListener('scroll', this.handleScroll);
     this.stopRain();
   }
 
@@ -160,10 +161,16 @@ renderOverlayElements() {
     const canvas = this.canvasRef.current;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-  };
 
-  handleScroll = () => {
-
+    let fontSize = this.state.fontSize;
+    if(canvas.width < 400)
+      fontSize = 12
+    else
+      fontSize = 18
+    let colums = canvas.width/fontSize;
+    this.setState({colums,fontSize})
+    let texts = this.fillTexts();
+    this.fillDrops(texts,this.state.page,colums)
   };
 
   checkIfShouldFormText(i, dropY, fontSize, ctx) {
@@ -174,7 +181,7 @@ renderOverlayElements() {
         const colX = i * fontSize;
         if (colX >= x && colX < x + text.length * fontSize) {
             const dropPositionY = Math.floor(dropY * fontSize);
-            if (Math.abs(dropPositionY - y) < 10) {
+            if (Math.abs(dropPositionY - y) < fontSize/2) {
                 const charIndex = Math.floor((colX - x) / fontSize);
 
                 ctx.fillStyle = (page !== undefined && page === this.state.page) 
@@ -194,11 +201,13 @@ renderOverlayElements() {
     if (this.rainEffect) return;
 
     this.rainEffect = setInterval(() => {
-      ctx.fillStyle = this.state.start ? 'transparent':'rgba(0,0,0,0.25)';
+      ctx.fillStyle = this.state.start ? 'transparent':'rgba(0,0,0,0.1)';
       ctx.fillRect(0, 0, width, height);
     
       ctx.font = `${fontSize}px monospace`;
-    
+      if (this.state.start && this.framesAfterLastNav > 100) {
+        this.setState({ start: false });
+      }
       for (let i = 0; i < this.drops.length; i++) {
         var count = 0;
         for (let j = 0; j < this.drops[i].length; j++) {
@@ -206,12 +215,11 @@ renderOverlayElements() {
     
             const textChar = this.checkIfShouldFormText(i,dropY, fontSize, ctx);
             if (count < this.dropsNeeded[i]) {
-                if (textChar !== null && !this.state.start && this.framesAfterLastNav > 33) {
+                if (textChar !== null && !this.state.start && this.framesAfterLastNav > 50) {
                   if (this.drops[i].filter(y => Math.abs(y - dropY) < 0.5).length <= 1) {
                     
                     ctx.fillText(textChar, i * fontSize, dropY * fontSize);
                 } else {
-                    // If another drop is occupying nearly the same position, increment this drop's y-position
                     this.drops[i][j] += 1;
                 }
                 count++;
@@ -225,11 +233,7 @@ renderOverlayElements() {
     
                     if (dropY * fontSize > height && Math.random() > 0.95) {
                         this.drops[i][j] = 0; 
-                        if (this.state.start) {
-                            this.setState({ start: false });
-                        }
                     }
-    
                     this.drops[i][j] += 1; 
                 }
             }
